@@ -36,10 +36,12 @@ export default function AppFunctional(props) {
 
   function reset() {
     // Use this helper to reset all states to their initial values.
+    console.log(steps)
     setMessage(initialMessage);
     setEmail(initialEmail);
     setSteps(initialSteps);
     setIndex(initialIndex);
+    console.log(steps)
   }
 
   function getNextIndex(direction) {
@@ -58,12 +60,42 @@ export default function AppFunctional(props) {
     }
   }
 
+  // function move(evt) {
+  //   // This event handler can use the helper above to obtain a new index for the "B",
+  //   // and change any states accordingly.
+  //   //get next index then grab event object target -> direction**
+  //   const id = evt.target.id
+  //   setIndex((getNextIndex(id)))
+  //   setSteps(steps + 1)
+
+  //   let messy
+
+  //   switch (id) {
+  //     case "up" :
+  //      (index < 3) ? messy="You can't go up" : messy = ''
+  //      break;
+  //     case "down" :
+  //     (index > 5) ? messy="You can't go down" : messy = ''
+  //     break;
+  //     case "left" :
+  //     (index % 3 === 0) ? messy = "You can't go left": messy = ''
+  //     break;
+  //     case "right" :
+  //     ((index-2) % 3 === 0) ? messy = "You can't go right" : messy = ''
+  //     break;
+  //   }
+  //   setMessage(messy)
+  // }
   function move(evt) {
-    // This event handler can use the helper above to obtain a new index for the "B",
-    // and change any states accordingly.
-    //get next index then grab event object target -> direction**
-    setIndex((getNextIndex(evt.target.id)))
-    setSteps(steps + 1)
+    const direction = evt.target.id
+    const nextIndex = getNextIndex(direction)
+    if (nextIndex !== index) {
+      setSteps(steps + 1)
+      setMessage(initialMessage)
+      setIndex(nextIndex)
+    } else {
+      setMessage(`You can't go ${direction}`)
+    }
   }
 
   function onChange(evt) {
@@ -79,17 +111,26 @@ export default function AppFunctional(props) {
     //reset the inputs to empty
     let [x,y] = getXY();
     evt.preventDefault()
+    let message ;
     axios.post(URL, { "x": x, "y": y, "steps": steps, "email": email })
-    .then(res => console.log(res))
-    .catch(err => console.error(err))
-    .finally(reset())
+    .then(res => {
+      message = res.data.message
+    })
+    .catch(err => {
+      message = err.response.data.message
+    })
+    .finally(() => {
+      setEmail(initialEmail)
+      setMessage(message)
+    }
+    )
   }
 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
         <h3 id="coordinates">{getXYMessage()}</h3>
-        <h3 id="steps">You moved {steps} times</h3>
+        <h3 id="steps">You moved {steps} {steps === 1 ? "time" : "times"}</h3>
       </div>
       <div id="grid">
         {
@@ -101,7 +142,7 @@ export default function AppFunctional(props) {
         }
       </div>
       <div className="info">
-        <h3 id="message"></h3>
+        <h3 id="message">{message}</h3>
       </div>
       <div id="keypad">
         <button onClick={move} id="left">LEFT</button>

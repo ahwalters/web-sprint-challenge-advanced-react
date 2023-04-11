@@ -67,25 +67,77 @@ export default class AppClass extends React.Component {
   move = (evt) => {
     // This event handler can use the helper above to obtain a new index for the "B",
     // and change any states accordingly.
-    let newIndex = this.getNextIndex(evt.target.id)
-    this.setState({...this.state, index: newIndex})
-    this.setState({...this.state, steps: this.state.steps + 1})
+    let id = evt.target.id
+    let newIndex = this.getNextIndex(id)
+    let message
+
+    /*
+    switch (id) {
+      case "up" :
+        (this.state.index < 3) ? message="You can't go up" : message = ''
+        break;
+      case "down" :
+        (this.state.index > 5) ? message="You can't go down" : message = ''
+        break;
+      case "left" :
+        (this.state.index % 3 === 0) ? message = "You can't go left": message = ''
+        break;
+      case "right" :
+        ((this.state.index-2) % 3 === 0) ? message = "You can't go right" : message = ''
+        break;
+    }
+    */
+    if (newIndex !== this.state.index) {
+      this.setState({
+        ...this.state,
+        steps: this.state.steps + 1,
+        message: initialMessage,
+        index: newIndex,
+      })
+    } else {
+      this.setState({
+        ...this.state,
+        message: `You can't go ${id}`,
+      })
+    }
   }
+
+    // console.log(this.state.message)
+    
+    // this.setState({
+    //   ...this.state, 
+    //   message,
+    //   index: newIndex, 
+    //   steps: this.state.steps + 1})
+    //}
 
   onChange = (evt) => {
     // You will need this to update the value of the input.
-    this.setState({...this.state, email: evt.target.value})
+    this.setState({
+      ...this.state, 
+      email: evt.target.value})
   }
 
-  onSubmit = (evt) => {
-    // Use a POST request to send a payload to the server.
-    evt.preventDefault();
-    let [x,y] = this.getXY();
-    axios.post(URL, { "x": x, "y": y, "steps": this.state.steps, "email": this.state.email })
-    .then(res => console.log(res))
-    .catch(err => console.error(err))
-    .finally(this.reset)
-  }
+onSubmit = (evt) => {
+  evt.preventDefault()
+  const [x, y] = this.getXY()
+  const { email, steps } = this.state
+  let message
+  axios.post('http://localhost:9000/api/result', { email, steps, x, y })
+    .then(res => {
+      message = res.data.message
+    })
+    .catch(err => {
+      message = err.response.data.message
+    })
+    .finally(() => {
+      this.setState({
+        ...this.state,
+        message,
+        email: initialEmail,
+      })
+    })
+}
 
   render() {
     const { className } = this.props
@@ -93,7 +145,7 @@ export default class AppClass extends React.Component {
       <div id="wrapper" className={className}>
         <div className="info">
           <h3 id="coordinates">{this.getXYMessage()}</h3>
-          <h3 id="steps">You moved {this.state.steps} times</h3>
+          <h3 id="steps">You moved {this.state.steps} {this.state.steps === 1 ? "time" : "times"}</h3>
         </div>
         <div id="grid">
           {
@@ -105,7 +157,7 @@ export default class AppClass extends React.Component {
           }
         </div>
         <div className="info">
-          <h3 id="message"></h3>
+          <h3 id="message">{this.state.message}</h3>
         </div>
         <div id="keypad">
           <button onClick={this.move} id="left">LEFT</button>
