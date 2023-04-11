@@ -79,7 +79,6 @@ export default function AppFunctional(props) {
     //reset the inputs to empty
     let [x,y] = getXY();
     evt.preventDefault()
-    //axios.post(URL, `{"x"${x},${y}y,steps${steps},email${email}}`)
     axios.post(URL, { "x": x, "y": y, "steps": steps, "email": email })
     .then(res => console.log(res))
     .catch(err => console.error(err))
@@ -95,8 +94,8 @@ export default function AppFunctional(props) {
       <div id="grid">
         {
           [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-            <div key={idx} className={`square${idx === 4 ? ' active' : ''}`}>
-              {idx === 4 ? 'B' : null}
+            <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
+              {idx === index ? 'B' : null}
             </div>
           ))
         }
@@ -112,7 +111,7 @@ export default function AppFunctional(props) {
         <button onClick={reset} id="reset">reset</button>
       </div>
       <form onSubmit={onSubmit}>
-        <input onChange={onChange} id="email" type="email" placeholder="type email"></input>
+        <input onChange={onChange} id="email" type="email" placeholder="type email" value={email}></input>
         <input id="submit" type="submit"></input>
       </form>
     </div>
