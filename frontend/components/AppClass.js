@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 
 // Suggested initial states
 const initialMessage = ''
@@ -12,6 +13,8 @@ const initialState = {
   index: initialIndex,
   steps: initialSteps,
 }
+
+const URL = 'http://localhost:9000/api/result'
 
 export default class AppClass extends React.Component {
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
@@ -86,3 +89,4 @@ export default class AppClass extends React.Component {
     )
   }
 }
+
